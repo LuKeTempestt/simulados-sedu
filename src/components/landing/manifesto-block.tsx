@@ -1,3 +1,6 @@
+"use client";
+
+import { type CSSProperties, type RefObject } from "react";
 import {
   BarChart3,
   Heart,
@@ -8,11 +11,37 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
+import { useContadorAnimado } from "@/hooks/use-contador-animado";
+
+function NumeroAnimado({
+  valorFinal,
+  formatador,
+  className,
+  style,
+}: {
+  valorFinal: number;
+  formatador?: (n: number) => string;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const { ref, valor } = useContadorAnimado({ valorFinal, formatador });
+  return (
+    <span
+      ref={ref as RefObject<HTMLSpanElement>}
+      className={className}
+      style={style}
+    >
+      {valor}
+    </span>
+  );
+}
 
 interface CardBento {
   icone: LucideIcon;
   rotulo: string;
   numero: string;
+  valorFinal?: number;
+  formatador?: (n: number) => string;
   unidade: string;
   bg: string;
   texto: string;
@@ -26,6 +55,8 @@ const STATS: CardBento[] = [
     icone: School,
     rotulo: "Escolas estaduais",
     numero: "47",
+    valorFinal: 47,
+    formatador: (n) => Math.round(n).toString(),
     unidade: "ativas em 78 municípios",
     bg: "bg-chartreuse",
     texto: "text-shade",
@@ -37,6 +68,7 @@ const STATS: CardBento[] = [
     icone: Users,
     rotulo: "Alunos cadastrados",
     numero: "12.420",
+    valorFinal: 12420,
     unidade: "ativos",
     bg: "bg-orchid",
     texto: "text-marble",
@@ -46,6 +78,8 @@ const STATS: CardBento[] = [
     icone: Sparkles,
     rotulo: "Confiança média da IA",
     numero: "92",
+    valorFinal: 92,
+    formatador: (n) => Math.round(n).toString(),
     unidade: "%",
     bg: "bg-iris",
     texto: "text-marble",
@@ -55,6 +89,8 @@ const STATS: CardBento[] = [
     icone: BarChart3,
     rotulo: "Simulados aplicados",
     numero: "318",
+    valorFinal: 318,
+    formatador: (n) => Math.round(n).toString(),
     unidade: "no ano",
     bg: "bg-rose",
     texto: "text-marble",
@@ -64,6 +100,7 @@ const STATS: CardBento[] = [
     icone: Heart,
     rotulo: "Adaptações ativas",
     numero: "1.840",
+    valorFinal: 1840,
     unidade: "alunos com TDAH/dislexia/discalculia",
     bg: "bg-lavender",
     texto: "text-shade",
@@ -83,6 +120,8 @@ const STATS: CardBento[] = [
     icone: Trophy,
     rotulo: "Coordenadores ativos",
     numero: "82",
+    valorFinal: 82,
+    formatador: (n) => Math.round(n).toString(),
     unidade: "trabalhando agora",
     bg: "bg-canopy",
     texto: "text-shade",
@@ -99,7 +138,12 @@ export function ManifestoBlock() {
     >
       <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
         <header className="mb-10 max-w-3xl md:mb-14">
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-rose">
+          <p
+            className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-rose"
+            style={{
+              animation: "materialize 0.6s var(--ease-quart) 0ms backwards",
+            }}
+          >
             A rede em números
           </p>
           <h2
@@ -110,6 +154,7 @@ export function ManifestoBlock() {
               fontSize: "clamp(2rem, 4.5vw, 3.5rem)",
               lineHeight: "1.07",
               letterSpacing: "-0.018em",
+              animation: "materialize 0.6s var(--ease-quart) 150ms backwards",
             }}
           >
             Atualiza{" "}
@@ -123,7 +168,10 @@ export function ManifestoBlock() {
             <article
               key={s.rotulo}
               className={`group relative overflow-hidden rounded-[28px] p-7 transition-transform duration-300 hover:-translate-y-1 md:p-8 ${s.bg} ${s.texto} ${s.span ?? ""}`}
-              style={{ minHeight: i === 0 || i === 4 ? "200px" : "220px" }}
+              style={{
+                minHeight: i === 0 || i === 4 ? "200px" : "220px",
+                animation: `slide-in-card 0.7s var(--ease-quint) ${i * 120}ms backwards`,
+              }}
             >
               <div className="flex items-start justify-between">
                 <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] opacity-70">
@@ -138,7 +186,7 @@ export function ManifestoBlock() {
               </div>
 
               <div className="mt-6 flex items-baseline gap-2">
-                <p
+                <div
                   className="font-sans tabular-nums"
                   style={{
                     fontSize:
@@ -148,8 +196,15 @@ export function ManifestoBlock() {
                     letterSpacing: "-0.04em",
                   }}
                 >
-                  {s.numero}
-                </p>
+                  {s.valorFinal !== undefined ? (
+                    <NumeroAnimado
+                      valorFinal={s.valorFinal}
+                      formatador={s.formatador}
+                    />
+                  ) : (
+                    s.numero
+                  )}
+                </div>
                 {s.unidade.length <= 3 && (
                   <p
                     className="font-sans"

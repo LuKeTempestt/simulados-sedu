@@ -50,6 +50,7 @@ export function FooterLanding() {
               fontSize: "clamp(3rem, 12vw, 9rem)",
               lineHeight: "1",
               letterSpacing: "-0.04em",
+              animation: "materialize 0.8s var(--ease-quart) 0ms backwards",
             }}
           >
             Simulados<span className="text-chartreuse">SEDU</span>
@@ -65,8 +66,13 @@ export function FooterLanding() {
           </div>
 
           <div className="grid gap-10 sm:grid-cols-3 md:col-span-7">
-            {COLUNAS.map((c) => (
-              <div key={c.titulo}>
+            {COLUNAS.map((c, i) => (
+              <div
+                key={c.titulo}
+                style={{
+                  animation: `materialize 0.6s var(--ease-quart) ${200 + i * 100}ms backwards`,
+                }}
+              >
                 <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-chartreuse">
                   {c.titulo}
                 </p>
@@ -110,7 +116,7 @@ function MascoteSedu() {
     <svg
       aria-hidden
       viewBox="0 0 280 320"
-      className="pointer-events-none absolute -right-12 -bottom-8 hidden h-[380px] w-auto opacity-90 md:block lg:-right-4 lg:h-[440px]"
+      className="pointer-events-none absolute -right-20 -bottom-16 hidden h-[280px] w-auto opacity-80 lg:block lg:-right-8 lg:h-[360px] xl:h-[420px]"
     >
       {/* corpo livro aberto */}
       <path
@@ -131,8 +137,28 @@ function MascoteSedu() {
       <rect x="160" y="130" width="60" height="3" rx="1.5" fill="var(--color-shade)" opacity="0.3" />
       <rect x="160" y="142" width="55" height="3" rx="1.5" fill="var(--color-shade)" opacity="0.3" />
       {/* olhos */}
-      <circle cx="90" cy="200" r="8" fill="var(--color-shade)" />
-      <circle cx="190" cy="200" r="8" fill="var(--color-shade)" />
+      <circle
+        cx="90"
+        cy="200"
+        r="8"
+        fill="var(--color-shade)"
+        style={{
+          animation: "piscar 5s ease-in-out infinite",
+          transformOrigin: "center",
+          transformBox: "fill-box",
+        }}
+      />
+      <circle
+        cx="190"
+        cy="200"
+        r="8"
+        fill="var(--color-shade)"
+        style={{
+          animation: "piscar 5s ease-in-out infinite",
+          transformOrigin: "center",
+          transformBox: "fill-box",
+        }}
+      />
       <circle cx="92" cy="198" r="2.5" fill="var(--color-marble)" />
       <circle cx="192" cy="198" r="2.5" fill="var(--color-marble)" />
       {/* sorriso pequeno */}
@@ -144,7 +170,7 @@ function MascoteSedu() {
         fill="none"
       />
       {/* lápis flutuando */}
-      <g transform="translate(220, 60) rotate(35)">
+      <g style={{ animation: "flutuar-lapis 3.5s ease-in-out infinite" }}>
         <rect width="10" height="80" rx="2" fill="var(--color-poppy)" />
         <polygon points="0,80 5,95 10,80" fill="var(--color-shade)" />
         <rect y="-12" width="10" height="14" rx="2" fill="var(--color-rose)" />
@@ -155,6 +181,7 @@ function MascoteSedu() {
         <circle cx="260" cy="200" r="5" />
         <circle cx="40" cy="280" r="3" />
       </g>
+      <style>{`@keyframes piscar { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } } @keyframes flutuar-lapis { 0%, 100% { transform: translate(220px, 60px) rotate(35deg); } 50% { transform: translate(220px, 50px) rotate(40deg); } }`}</style>
     </svg>
   );
 }

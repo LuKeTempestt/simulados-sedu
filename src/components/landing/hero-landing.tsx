@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import {
   ArrowRight,
   GraduationCap,
@@ -7,25 +10,139 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
+import { useContadorAnimado } from "@/hooks/use-contador-animado";
+
+const GRAIN_DATA_URI =
+  "data:image/svg+xml;utf8,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
+
+function PalavraReveal({
+  delay,
+  children,
+}: {
+  delay: number;
+  children: ReactNode;
+}) {
+  return (
+    <span
+      className="inline-block"
+      style={{
+        animation: `mask-reveal-rtl 0.7s var(--ease-snap) ${delay}ms backwards`,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function NumeroAnimado({
+  valorFinal,
+  formatador,
+  className,
+  style,
+}: {
+  valorFinal: number;
+  formatador?: (n: number) => string;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const { ref, valor } = useContadorAnimado({ valorFinal, formatador });
+  return (
+    <span
+      ref={ref as RefObject<HTMLSpanElement>}
+      className={className}
+      style={style}
+    >
+      {valor}
+    </span>
+  );
+}
+
+function CardMockup({
+  baseRotation,
+  scrollFactor,
+  scrollY,
+  delay,
+  className,
+  style,
+  children,
+}: {
+  baseRotation: number;
+  scrollFactor: number;
+  scrollY: number;
+  delay: number;
+  className?: string;
+  style?: CSSProperties;
+  children: ReactNode;
+}) {
+  const [hover, setHover] = useState(false);
+  const translateY = Math.max(-12, Math.min(12, scrollY * scrollFactor * -1));
+  const transformComposto = hover
+    ? `rotate(${baseRotation}deg) rotateX(2deg) rotateY(-2deg) scale(1.02) translateY(${translateY}px)`
+    : `rotate(${baseRotation}deg) translateY(${translateY}px)`;
+
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className={className}
+      style={{
+        ...style,
+        transform: transformComposto,
+        transition: "transform 400ms var(--ease-quint)",
+        animation: `slide-in-card 0.7s var(--ease-quint) ${delay}ms backwards`,
+        willChange: "transform",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 export function HeroLanding() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const aoScrollar = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", aoScrollar, { passive: true });
+    return () => window.removeEventListener("scroll", aoScrollar);
+  }, []);
+
   return (
     <section
       className="relative overflow-hidden bg-marble"
       data-slot="hero-landing"
       aria-labelledby="hero-titulo"
     >
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 pt-16 pb-20 md:grid-cols-12 md:gap-8 md:px-8 md:pt-24 md:pb-28">
+      {/* grain noise — camada de fundo institucional sutil */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage: `url("${GRAIN_DATA_URI}")`,
+          opacity: 0.04,
+          mixBlendMode: "overlay",
+        }}
+      />
+
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 px-4 pt-16 pb-20 md:grid-cols-12 md:gap-8 md:px-8 md:pt-24 md:pb-28">
         {/* coluna texto */}
         <div className="md:col-span-7">
-          {/* badge eyebrow colorido */}
-          <span className="inline-flex items-center gap-2 rounded-full bg-shade px-4 py-2">
+          {/* badge eyebrow — materialize delay 0 */}
+          <span
+            className="inline-flex items-center gap-2 rounded-full bg-shade px-4 py-2"
+            style={{
+              animation: "materialize 0.6s var(--ease-quart) 0ms backwards",
+            }}
+          >
             <span className="size-1.5 rounded-full bg-chartreuse" aria-hidden />
             <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-marble">
               Secretaria do Espírito Santo
             </span>
           </span>
 
+          {/* h1 — mask-reveal-rtl word-by-word stagger 80ms */}
           <h1
             id="hero-titulo"
             className="mt-6 font-sans text-shade"
@@ -36,22 +153,30 @@ export function HeroLanding() {
               letterSpacing: "-0.025em",
             }}
           >
-            Avaliação que vira{" "}
-            <span className="relative inline-block">
-              <span className="relative z-10 text-shade">decisão</span>
-              <span
-                aria-hidden
-                className="absolute -inset-x-1 inset-y-1.5 z-0 rounded-md bg-chartreuse"
-              />
-            </span>{" "}
-            <span className="text-orchid italic">no mesmo dia.</span>
+            <PalavraReveal delay={0}>Avaliação</PalavraReveal>{" "}
+            <PalavraReveal delay={80}>que</PalavraReveal>{" "}
+            <PalavraReveal delay={160}>vira</PalavraReveal>{" "}
+            <PalavraReveal delay={240}>
+              <span className="relative inline-block">
+                <span className="relative z-10 text-shade">decisão</span>
+                <span
+                  aria-hidden
+                  className="absolute -inset-x-1 inset-y-1.5 z-0 rounded-md bg-chartreuse"
+                />
+              </span>
+            </PalavraReveal>{" "}
+            <PalavraReveal delay={320}>
+              <span className="text-orchid italic">no mesmo dia.</span>
+            </PalavraReveal>
           </h1>
 
+          {/* descrição — materialize delay 600 */}
           <p
             className="mt-7 max-w-xl text-shade/75"
             style={{
               fontSize: "clamp(1.0625rem, 1.5vw, 1.25rem)",
               lineHeight: "1.5",
+              animation: "materialize 0.6s var(--ease-quart) 600ms backwards",
             }}
           >
             Plataforma estadual de simulados com IA auditável. Da Secretaria à
@@ -59,7 +184,13 @@ export function HeroLanding() {
             diagnóstico chegar pro coordenador, no mesmo dia.
           </p>
 
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+          {/* CTAs — materialize delay 800 */}
+          <div
+            className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
+            style={{
+              animation: "materialize 0.6s var(--ease-quart) 800ms backwards",
+            }}
+          >
             <Link
               href="/login"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-shade px-7 py-4 text-base font-bold text-marble transition-all hover:bg-shade/90 active:translate-y-px"
@@ -75,21 +206,39 @@ export function HeroLanding() {
             </a>
           </div>
 
-          {/* badges flutuantes embaixo */}
+          {/* badges flutuantes — stagger 1000/1100/1200 + counter animado */}
           <div className="mt-12 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full bg-chartreuse px-4 py-2">
+            <span
+              className="inline-flex items-center gap-2 rounded-full bg-chartreuse px-4 py-2"
+              style={{
+                animation:
+                  "materialize 0.5s var(--ease-quart) 1000ms backwards",
+              }}
+            >
               <School className="size-3.5 text-shade" aria-hidden />
-              <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-shade">
-                47 escolas
+              <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-shade tabular-nums">
+                <NumeroAnimado valorFinal={47} /> escolas
               </span>
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full bg-orchid px-4 py-2">
+            <span
+              className="inline-flex items-center gap-2 rounded-full bg-orchid px-4 py-2"
+              style={{
+                animation:
+                  "materialize 0.5s var(--ease-quart) 1100ms backwards",
+              }}
+            >
               <GraduationCap className="size-3.5 text-marble" aria-hidden />
-              <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-marble">
-                12.420 alunos
+              <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-marble tabular-nums">
+                <NumeroAnimado valorFinal={12420} /> alunos
               </span>
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full bg-poppy px-4 py-2">
+            <span
+              className="inline-flex items-center gap-2 rounded-full bg-poppy px-4 py-2"
+              style={{
+                animation:
+                  "materialize 0.5s var(--ease-quart) 1200ms backwards",
+              }}
+            >
               <Sparkles className="size-3.5 text-shade" aria-hidden />
               <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-shade">
                 IA auditável
@@ -100,19 +249,66 @@ export function HeroLanding() {
 
         {/* mockup multi-device */}
         <div className="relative md:col-span-5">
-          <MockupHero />
+          <MockupHero scrollY={scrollY} />
         </div>
       </div>
     </section>
   );
 }
 
-function MockupHero() {
+function MockupHero({ scrollY }: { scrollY: number }) {
   return (
-    <div className="relative mx-auto h-[560px] w-full max-w-md md:h-[600px]">
-      {/* phone — fundo iris (azul escuro Linktree) */}
+    <div
+      className="relative mx-auto h-[560px] w-full max-w-md md:h-[600px]"
+      style={{ perspective: "1000px" }}
+    >
+      {/* ===== ATMOSPHERIC GLOWS — camada de fundo ===== */}
       <div
-        className="absolute top-4 left-0 h-[480px] w-[270px] overflow-hidden rounded-[40px] bg-iris p-4 md:left-2"
+        aria-hidden
+        className="pointer-events-none absolute top-12 left-4 size-[340px] md:left-6"
+        style={{
+          background: "radial-gradient(circle, #061492 0%, transparent 70%)",
+          filter: "blur(70px)",
+          opacity: 0.55,
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-4 -right-4 size-[280px] md:right-0"
+        style={{
+          background: "radial-gradient(circle, #d2e823 0%, transparent 70%)",
+          filter: "blur(70px)",
+          opacity: 0.75,
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute right-2 bottom-0 size-[300px] md:right-8"
+        style={{
+          background: "radial-gradient(circle, #cc01dd 0%, transparent 70%)",
+          filter: "blur(70px)",
+          opacity: 0.65,
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute right-0 bottom-28 size-[240px] md:right-4"
+        style={{
+          background: "radial-gradient(circle, #02acc4 0%, transparent 70%)",
+          filter: "blur(70px)",
+          opacity: 0.7,
+        }}
+      />
+
+      {/* ===== CARDS — camada superior z-10, com tilt 3D + parallax + slide-in ===== */}
+
+      {/* phone iris */}
+      <CardMockup
+        baseRotation={0}
+        scrollFactor={0.05}
+        scrollY={scrollY}
+        delay={400}
+        className="absolute top-4 left-0 z-10 h-[480px] w-[270px] overflow-hidden rounded-[40px] bg-iris p-4 md:left-2"
         style={{ boxShadow: "0 24px 0 0 rgba(0,0,0,0.10)" }}
       >
         <div
@@ -164,15 +360,16 @@ function MockupHero() {
             </li>
           ))}
         </ul>
-      </div>
+      </CardMockup>
 
-      {/* card stat chartreuse — confiança IA */}
-      <div
-        className="absolute -right-2 top-0 w-[210px] rounded-3xl bg-chartreuse p-5 md:right-0"
-        style={{
-          boxShadow: "0 16px 0 0 rgba(0,0,0,0.10)",
-          transform: "rotate(2deg)",
-        }}
+      {/* stat chartreuse 92% */}
+      <CardMockup
+        baseRotation={2}
+        scrollFactor={0.08}
+        scrollY={scrollY}
+        delay={550}
+        className="absolute -right-2 top-0 z-10 w-[210px] rounded-3xl bg-chartreuse p-5 md:right-0"
+        style={{ boxShadow: "0 16px 0 0 rgba(0,0,0,0.10)" }}
       >
         <div className="flex items-center gap-2">
           <Sparkles className="size-4 text-shade" aria-hidden />
@@ -189,20 +386,25 @@ function MockupHero() {
             letterSpacing: "-0.04em",
           }}
         >
-          92%
+          <NumeroAnimado
+            valorFinal={92}
+            formatador={(n) => Math.round(n).toString()}
+          />
+          %
         </p>
         <p className="mt-1 inline-flex rounded-full bg-shade px-2 py-1 text-[10px] font-bold text-chartreuse">
           alta · liberar
         </p>
-      </div>
+      </CardMockup>
 
-      {/* card form orchid */}
-      <div
-        className="absolute right-4 -bottom-2 w-[230px] rounded-3xl bg-orchid p-5 md:right-12"
-        style={{
-          boxShadow: "0 16px 0 0 rgba(0,0,0,0.12)",
-          transform: "rotate(-2deg)",
-        }}
+      {/* form orchid */}
+      <CardMockup
+        baseRotation={-2}
+        scrollFactor={0.1}
+        scrollY={scrollY}
+        delay={700}
+        className="absolute right-4 -bottom-2 z-10 w-[230px] rounded-3xl bg-orchid p-5 md:right-12"
+        style={{ boxShadow: "0 16px 0 0 rgba(0,0,0,0.12)" }}
       >
         <div className="flex items-center gap-2">
           <ListChecks className="size-4 text-marble" aria-hidden />
@@ -229,15 +431,16 @@ function MockupHero() {
             20 q.
           </span>
         </div>
-      </div>
+      </CardMockup>
 
-      {/* card stat trending sky */}
-      <div
-        className="absolute right-0 bottom-32 w-[170px] rounded-3xl bg-sky p-4 md:right-2"
-        style={{
-          boxShadow: "0 12px 0 0 rgba(0,0,0,0.10)",
-          transform: "rotate(3deg)",
-        }}
+      {/* stat sky +18% */}
+      <CardMockup
+        baseRotation={3}
+        scrollFactor={0.06}
+        scrollY={scrollY}
+        delay={850}
+        className="absolute right-0 bottom-32 z-10 w-[170px] rounded-3xl bg-sky p-4 md:right-2"
+        style={{ boxShadow: "0 12px 0 0 rgba(0,0,0,0.10)" }}
       >
         <TrendingUp className="size-5 text-shade" aria-hidden />
         <p
@@ -249,19 +452,30 @@ function MockupHero() {
             letterSpacing: "-0.03em",
           }}
         >
-          +18%
+          +
+          <NumeroAnimado
+            valorFinal={18}
+            formatador={(n) => Math.round(n).toString()}
+          />
+          %
         </p>
         <p className="mt-1 font-mono text-[10px] font-bold uppercase tracking-widest text-shade/70">
           vs simulado anterior
         </p>
-      </div>
+      </CardMockup>
 
-      {/* badge canopy flutuante */}
+      {/* badge 'ao vivo' canopy — slide-in delay 1000 + pulse */}
       <span
-        className="absolute -top-4 right-32 inline-flex items-center gap-2 rounded-full bg-canopy px-3 py-1.5"
-        style={{ boxShadow: "0 8px 0 0 rgba(0,0,0,0.10)" }}
+        className="absolute -top-4 right-32 z-10 inline-flex items-center gap-2 rounded-full bg-canopy px-3 py-1.5"
+        style={{
+          boxShadow: "0 8px 0 0 rgba(0,0,0,0.10)",
+          animation: "slide-in-card 0.6s var(--ease-quint) 1000ms backwards",
+        }}
       >
-        <span className="size-1.5 rounded-full bg-shade" aria-hidden />
+        <span
+          className="size-1.5 rounded-full bg-shade motion-pulse-ambient"
+          aria-hidden
+        />
         <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-shade">
           ao vivo
         </span>

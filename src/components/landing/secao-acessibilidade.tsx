@@ -68,7 +68,12 @@ export function SecaoAcessibilidade() {
     >
       <div className="mx-auto w-full max-w-7xl px-4 py-20 md:px-8 md:py-28">
         <header className="mb-12 max-w-3xl md:mb-16">
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-canopy">
+          <p
+            className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-canopy"
+            style={{
+              animation: "materialize 0.6s var(--ease-quart) 0ms backwards",
+            }}
+          >
             Acessibilidade
           </p>
           <h2
@@ -79,23 +84,32 @@ export function SecaoAcessibilidade() {
               fontSize: "clamp(2.25rem, 5vw, 3.75rem)",
               lineHeight: "1.06",
               letterSpacing: "-0.02em",
+              animation: "materialize 0.6s var(--ease-quart) 150ms backwards",
             }}
           >
             Aluno com adaptação responde{" "}
             <span className="text-poppy">o mesmo simulado da turma.</span>
           </h2>
-          <p className="mt-5 max-w-2xl text-shade/75 md:text-[17px]">
+          <p
+            className="mt-5 max-w-2xl text-shade/75 md:text-[17px]"
+            style={{
+              animation: "materialize 0.6s var(--ease-quart) 300ms backwards",
+            }}
+          >
             Acessibilidade não é versão paralela. É um conjunto de adaptações
             que vivem dentro da mesma tela. WCAG AA é piso, não teto.
           </p>
         </header>
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
-          {ADAPTACOES.map((a) => (
+          {ADAPTACOES.map((a, i) => (
             <article
               key={a.rotulo}
               className={`group rounded-[28px] p-6 transition-transform duration-300 hover:-translate-y-1 md:p-7 ${a.bg} ${a.texto}`}
-              style={{ minHeight: "260px" }}
+              style={{
+                minHeight: "260px",
+                animation: `slide-in-card 0.7s var(--ease-quint) ${i * 150}ms backwards`,
+              }}
             >
               <span
                 className={`inline-flex size-12 items-center justify-center rounded-full transition-transform duration-300 group-hover:rotate-12 ${a.iconeBg} ${a.iconeTexto}`}

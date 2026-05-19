@@ -63,7 +63,12 @@ export function SecaoDepoimentos() {
     >
       <div className="mx-auto w-full max-w-7xl px-4 py-20 md:px-8 md:py-28">
         <header className="mb-12 max-w-3xl md:mb-16">
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-currant">
+          <p
+            className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-currant"
+            style={{
+              animation: "materialize 0.6s var(--ease-quart) 0ms backwards",
+            }}
+          >
             Quem está usando
           </p>
           <h2
@@ -74,12 +79,18 @@ export function SecaoDepoimentos() {
               fontSize: "clamp(2.25rem, 5vw, 3.75rem)",
               lineHeight: "1.06",
               letterSpacing: "-0.02em",
+              animation: "materialize 0.6s var(--ease-quart) 150ms backwards",
             }}
           >
             Confiável,{" "}
             <span className="text-orchid italic">de verdade.</span>
           </h2>
-          <p className="mt-5 max-w-xl text-shade/75 md:text-[17px]">
+          <p
+            className="mt-5 max-w-xl text-shade/75 md:text-[17px]"
+            style={{
+              animation: "materialize 0.6s var(--ease-quart) 300ms backwards",
+            }}
+          >
             Coordenadores, professores e estudantes da rede estadual descrevem
             o que mudou no trabalho pedagógico depois que o ciclo virou diário.
           </p>
@@ -105,7 +116,12 @@ function CardTestimonial({
   indice: number;
 }) {
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[32px] border-2 border-shade transition-transform duration-300 hover:-translate-y-1 hover:rotate-[-0.5deg]">
+    <article
+      className="group flex h-full flex-col overflow-hidden rounded-[32px] border-2 border-shade transition-transform duration-300 hover:-translate-y-1 hover:rotate-[-0.5deg]"
+      style={{
+        animation: `slide-in-card 0.8s var(--ease-quint) ${indice * 180}ms backwards`,
+      }}
+    >
       {/* área da foto — cutout signature Linktree */}
       <div className={`relative aspect-[4/3] overflow-hidden ${d.blobBg}`}>
         {/* blob 1 */}

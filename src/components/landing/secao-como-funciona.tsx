@@ -89,7 +89,12 @@ export function SecaoComoFunciona() {
     >
       <div className="mx-auto w-full max-w-7xl px-4 py-20 md:px-8 md:py-28">
         <header className="mb-12 max-w-3xl md:mb-16">
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-orchid">
+          <p
+            className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-orchid"
+            style={{
+              animation: "materialize 0.6s var(--ease-quart) 0ms backwards",
+            }}
+          >
             Como funciona
           </p>
           <h2
@@ -100,6 +105,7 @@ export function SecaoComoFunciona() {
               fontSize: "clamp(2.25rem, 5vw, 3.75rem)",
               lineHeight: "1.06",
               letterSpacing: "-0.02em",
+              animation: "materialize 0.6s var(--ease-quart) 150ms backwards",
             }}
           >
             Crie e acompanhe simulados em{" "}
@@ -109,11 +115,14 @@ export function SecaoComoFunciona() {
 
         {/* grid 2x2 — cada passo uma cor diferente */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-          {PASSOS.map((p) => (
+          {PASSOS.map((p, i) => (
             <article
               key={p.numero}
               className={`group relative overflow-hidden rounded-[32px] p-8 transition-transform duration-300 hover:-translate-y-1 md:p-10 ${p.bg} ${p.texto}`}
-              style={{ minHeight: "340px" }}
+              style={{
+                minHeight: "340px",
+                animation: `slide-in-card 0.8s var(--ease-quint) ${i * 150}ms backwards`,
+              }}
             >
               <div className="flex items-start justify-between">
                 <span

@@ -27,7 +27,7 @@ export function HeaderLanding() {
     <header
       className={cn(
         "sticky top-0 z-40 w-full bg-marble transition-all duration-200",
-        rolou && "shadow-[0_2px_0_0_var(--color-shade)]/10",
+        rolou && "bg-marble/70 backdrop-blur-[20px] backdrop-saturate-[150%] border-b border-shade/10 shadow-none",
       )}
       data-slot="header-landing"
     >
@@ -83,7 +83,7 @@ export function HeaderLanding() {
 
       {/* mobile menu */}
       {aberto && (
-        <div className="border-t border-shade/10 bg-marble md:hidden">
+        <div className="border-t border-shade/10 bg-marble md:hidden motion-materialize">
           <nav className="px-4 py-4">
             {ANCORAS.map((a) => (
               <a

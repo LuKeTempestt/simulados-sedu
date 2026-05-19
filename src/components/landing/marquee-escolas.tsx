@@ -1,4 +1,31 @@
+"use client";
+
+import { type CSSProperties, type RefObject } from "react";
 import { Award, Building2, MapPin, Users } from "lucide-react";
+import { useContadorAnimado } from "@/hooks/use-contador-animado";
+
+function NumeroAnimado({
+  valorFinal,
+  formatador,
+  className,
+  style,
+}: {
+  valorFinal: number;
+  formatador?: (n: number) => string;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const { ref, valor } = useContadorAnimado({ valorFinal, formatador });
+  return (
+    <span
+      ref={ref as RefObject<HTMLSpanElement>}
+      className={className}
+      style={style}
+    >
+      {valor}
+    </span>
+  );
+}
 
 interface TileEscola {
   inicial: string;
@@ -106,7 +133,12 @@ export function MarqueeEscolas() {
     >
       <div className="mx-auto w-full max-w-7xl px-4 pt-20 md:px-8 md:pt-28">
         <header className="mb-12 max-w-3xl md:mb-16">
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-hydrangea">
+          <p
+            className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-hydrangea"
+            style={{
+              animation: "materialize 0.6s var(--ease-quart) 0ms backwards",
+            }}
+          >
             Em uso na rede
           </p>
           <h2
@@ -117,12 +149,18 @@ export function MarqueeEscolas() {
               fontSize: "clamp(2.25rem, 5vw, 3.75rem)",
               lineHeight: "1.06",
               letterSpacing: "-0.02em",
+              animation: "materialize 0.6s var(--ease-quart) 150ms backwards",
             }}
           >
             <span className="text-rose">Quarenta e sete</span> escolas
             estaduais.
           </h2>
-          <p className="mt-5 max-w-xl text-shade/75 md:text-[17px]">
+          <p
+            className="mt-5 max-w-xl text-shade/75 md:text-[17px]"
+            style={{
+              animation: "materialize 0.6s var(--ease-quart) 300ms backwards",
+            }}
+          >
             Da capital às cidades do interior do Espírito Santo. Cada escola
             com sua coordenação pedagógica conectada ao mesmo banco de
             questões.
@@ -135,6 +173,9 @@ export function MarqueeEscolas() {
             <li key={i}>
               <article
                 className={`group relative flex aspect-square flex-col justify-between overflow-hidden rounded-[28px] p-6 transition-transform duration-300 hover:-translate-y-1 hover:rotate-1 md:p-7 ${t.bg} ${t.texto}`}
+                style={{
+                  animation: `slide-in-card 0.7s var(--ease-quint) ${i * 80}ms backwards`,
+                }}
               >
                 {/* iniciais grandes ao centro */}
                 <p
@@ -177,19 +218,49 @@ export function MarqueeEscolas() {
         </ul>
 
         {/* stats row */}
-        <div className="mt-12 grid grid-cols-2 gap-3 rounded-[24px] bg-shade p-6 md:mt-16 md:grid-cols-4 md:p-8">
+        <div
+          className="mt-12 grid grid-cols-2 gap-3 rounded-[24px] bg-shade p-6 md:mt-16 md:grid-cols-4 md:p-8"
+          style={{
+            animation: "slide-in-card 0.8s var(--ease-quint) 700ms backwards",
+          }}
+        >
           {[
-            { icone: Building2, valor: "47", rotulo: "Escolas", cor: "text-chartreuse" },
-            { icone: MapPin, valor: "78", rotulo: "Municípios", cor: "text-poppy" },
-            { icone: Users, valor: "12.420", rotulo: "Alunos", cor: "text-orchid" },
-            { icone: Award, valor: "2026", rotulo: "Em produção", cor: "text-sky" },
+            {
+              icone: Building2,
+              valor: "47",
+              valorFinal: 47,
+              formatador: (n: number) => Math.round(n).toString(),
+              rotulo: "Escolas",
+              cor: "text-chartreuse",
+            },
+            {
+              icone: MapPin,
+              valor: "78",
+              valorFinal: 78,
+              formatador: (n: number) => Math.round(n).toString(),
+              rotulo: "Municípios",
+              cor: "text-poppy",
+            },
+            {
+              icone: Users,
+              valor: "12.420",
+              valorFinal: 12420,
+              rotulo: "Alunos",
+              cor: "text-orchid",
+            },
+            {
+              icone: Award,
+              valor: "2026",
+              rotulo: "Em produção",
+              cor: "text-sky",
+            },
           ].map((s) => (
             <div key={s.rotulo} className="flex items-center gap-4">
               <span className={`shrink-0 ${s.cor}`} aria-hidden>
                 <s.icone className="size-7" />
               </span>
               <div>
-                <p
+                <div
                   className="font-sans text-marble tabular-nums"
                   style={{
                     fontSize: "1.625rem",
@@ -198,8 +269,15 @@ export function MarqueeEscolas() {
                     letterSpacing: "-0.03em",
                   }}
                 >
-                  {s.valor}
-                </p>
+                  {s.valorFinal !== undefined ? (
+                    <NumeroAnimado
+                      valorFinal={s.valorFinal}
+                      formatador={s.formatador}
+                    />
+                  ) : (
+                    s.valor
+                  )}
+                </div>
                 <p className="mt-1 font-mono text-[10px] font-bold uppercase tracking-widest text-marble/60">
                   {s.rotulo}
                 </p>
