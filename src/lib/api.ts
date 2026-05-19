@@ -2,7 +2,12 @@ import axios, { AxiosError, type AxiosRequestConfig } from "axios";
 import type { ErroApi } from "@/types";
 
 export const URL_API_BASE = "/api";
-export const CHAVE_TOKEN = "simulados_token";
+// Fonte canônica do token de auth — mesma chave usada pelo proxy.ts e auth-store.ts.
+// Antes lia de localStorage["simulados_token"], que só era escrito no submit do login
+// e perdia-se em qualquer reload (o zustand persist + cookie sobreviviam, mas a chave
+// específica não era reposta). Agora lê do cookie, que é reposto automaticamente
+// via onRehydrateStorage do auth-store.
+export const NOME_COOKIE_TOKEN = "sedu-token";
 
 const cliente = axios.create({
   baseURL: URL_API_BASE,
@@ -11,21 +16,15 @@ const cliente = axios.create({
 });
 
 function obterTokenLocal(): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    return window.localStorage.getItem(CHAVE_TOKEN);
-  } catch {
-    return null;
-  }
+  if (typeof document === "undefined") return null;
+  const padrao = new RegExp(`(?:^|;\\s*)${NOME_COOKIE_TOKEN}=([^;]+)`);
+  const correspondencia = document.cookie.match(padrao);
+  return correspondencia ? decodeURIComponent(correspondencia[1]) : null;
 }
 
 function limparTokenLocal(): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.removeItem(CHAVE_TOKEN);
-  } catch {
-    // Ignorar — pode estar bloqueado em modo privado.
-  }
+  if (typeof document === "undefined") return;
+  document.cookie = `${NOME_COOKIE_TOKEN}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
 }
 
 function disparar401(): void {

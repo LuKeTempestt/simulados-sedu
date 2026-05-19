@@ -21,6 +21,12 @@ import {
 } from "@/hooks/api/use-suporte-dashboard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { CardKpi } from "@/components/graficos/card-kpi";
+import {
+  CategoryBadge,
+  type CategoriaSemantica,
+} from "@/components/ui/category-badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -88,19 +94,20 @@ export default function PaginaDashboardSuporte() {
 
       {/* contagem */}
       {data && (
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <CardContagem
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 md:max-w-md">
+          <CardKpi
             icone={Users}
             rotulo="Total"
             valor={data.contagem.total}
-            cor="primary"
+            tom="primario"
+            delayReveal={0}
           />
-          <CardContagem
+          <CardKpi
             icone={Heart}
             rotulo="Respondendo agora"
             valor={data.contagem.respondendoAgora}
-            cor="success"
-            destacado={data.contagem.respondendoAgora > 0}
+            tom={data.contagem.respondendoAgora > 0 ? "vivo" : "neutro"}
+            delayReveal={0.08}
           />
         </div>
       )}
@@ -170,17 +177,12 @@ export default function PaginaDashboardSuporte() {
             </Button>
           </div>
         ) : lista.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-              Nenhum aluno encontrado
-            </p>
-            <p
-              className="mt-3 font-serif text-lg tracking-tight"
-              style={{ fontVariationSettings: '"wght" 510' }}
-            >
-              Ajuste a busca ou os filtros pra ver alunos.
-            </p>
-          </div>
+          <EmptyState
+            icone={Search}
+            tomIcone="neutro"
+            titulo="Nenhum aluno encontrado"
+            descricao="Ajuste a busca ou os filtros pra ver alunos."
+          />
         ) : (
           <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {lista.map((item) => (
@@ -195,43 +197,10 @@ export default function PaginaDashboardSuporte() {
   );
 }
 
-function CardContagem({
-  icone: Icone,
-  rotulo,
-  valor,
-  cor,
-  destacado = false,
-}: {
-  icone: LucideIcon;
-  rotulo: string;
-  valor: number;
-  cor: "primary" | "success";
-  destacado?: boolean;
-}) {
-  const classes = {
-    primary: "bg-primary-muted border-primary/20 text-primary-text",
-    success: "bg-success-muted border-success/30 text-success",
-  }[cor];
-
-  return (
-    <div
-      className={cn(
-        "inline-flex items-center gap-3 rounded-lg border px-4 py-3",
-        classes,
-        destacado && "motion-pulse-ambient",
-      )}
-    >
-      <Icone className="size-4 shrink-0" aria-hidden />
-      <div className="flex items-baseline gap-2">
-        <span className="font-serif text-2xl font-medium tabular-nums">
-          {valor}
-        </span>
-        <span className="font-mono text-[10px] uppercase tracking-wider opacity-80">
-          {rotulo}
-        </span>
-      </div>
-    </div>
-  );
+function categoriaPorNota(nota: number): CategoriaSemantica {
+  if (nota >= 7) return "aprendizado";
+  if (nota >= 5) return "missao";
+  return "destrutivo";
 }
 
 function CardAluno({ item }: { item: ItemDashboardSuporte }) {
@@ -277,19 +246,17 @@ function CardAluno({ item }: { item: ItemDashboardSuporte }) {
 
       {/* adaptações */}
       <div className="mt-4 flex flex-wrap gap-1.5">
-        {(aluno.adaptacoes ?? []).map((a) => {
-          const Icone = ICONES_ADAPTACAO[a];
-          return (
-            <span
-              key={a}
-              className="inline-flex items-center gap-1 rounded-full bg-warning-muted px-2.5 py-1 text-[10px] font-medium text-warning"
-              title={obterNomeAdaptacao(a)}
-            >
-              <Icone className="size-3" aria-hidden />
-              {obterNomeAdaptacao(a)}
-            </span>
-          );
-        })}
+        {(aluno.adaptacoes ?? []).map((a) => (
+          <CategoryBadge
+            key={a}
+            categoria="missao"
+            tamanho="xs"
+            icone={ICONES_ADAPTACAO[a]}
+            title={obterNomeAdaptacao(a)}
+          >
+            {obterNomeAdaptacao(a)}
+          </CategoryBadge>
+        ))}
       </div>
 
       {/* última atividade */}
@@ -309,18 +276,12 @@ function CardAluno({ item }: { item: ItemDashboardSuporte }) {
             <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
               Último simulado · {formatarTempoRelativo(ultimoResultado.finalizadoEm)}
             </span>
-            <span
-              className={cn(
-                "rounded-md px-2 py-0.5 font-mono text-xs font-bold tabular-nums",
-                ultimoResultado.notaFinal >= 7
-                  ? "bg-success-muted text-success"
-                  : ultimoResultado.notaFinal >= 5
-                    ? "bg-warning-muted text-warning"
-                    : "bg-destructive-muted text-destructive",
-              )}
+            <CategoryBadge
+              categoria={categoriaPorNota(ultimoResultado.notaFinal)}
+              tamanho="xs"
             >
               {formatarNota(ultimoResultado.notaFinal)}
-            </span>
+            </CategoryBadge>
           </div>
         ) : (
           <p className="border-t border-border pt-3 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">

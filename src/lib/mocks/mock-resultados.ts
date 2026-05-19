@@ -177,7 +177,7 @@ const resultadosPortugues: ResultadoSimulado[] = ALUNOS_RESPONDENTES.map(
       emBranco,
       tempoTotalSegundos: tempoTotal + 120, // tempo extra de leitura
       iniciadoEm: `2026-04-15T08:${String((indice * 7) % 60).padStart(2, "0")}:00-03:00`,
-      finalizadoEm: `2026-04-15T${9 + Math.floor(indice / 12)}:${String((indice * 11 + 18) % 60).padStart(2, "0")}:00-03:00`,
+      finalizadoEm: `2026-04-15T${String(9 + Math.floor(indice / 12)).padStart(2, "0")}:${String((indice * 11 + 18) % 60).padStart(2, "0")}:00-03:00`,
       desempenhoPorCompetencia: calcularDesempenhoPortugues(nota, indice),
     };
   },
@@ -215,7 +215,7 @@ const resultadosMatematica: ResultadoSimulado[] = ALUNOS_RESPONDENTES.map(
       emBranco,
       tempoTotalSegundos: tempoTotal + 180,
       iniciadoEm: `2026-04-22T08:${String((indice * 11) % 60).padStart(2, "0")}:00-03:00`,
-      finalizadoEm: `2026-04-22T${9 + Math.floor(indice / 12)}:${String((indice * 13 + 22) % 60).padStart(2, "0")}:00-03:00`,
+      finalizadoEm: `2026-04-22T${String(9 + Math.floor(indice / 12)).padStart(2, "0")}:${String((indice * 13 + 22) % 60).padStart(2, "0")}:00-03:00`,
       desempenhoPorCompetencia: calcularDesempenhoMatematica(nota, indice),
     };
   },

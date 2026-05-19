@@ -1,18 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Calendar, Clock, TrendingUp } from "lucide-react";
 import {
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+  ArrowRight,
+  Calendar,
+  Clock,
+  Inbox,
+  LineChart as LineChartIcon,
+  TrendingUp,
+} from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAlunoHome, type PontoEvolucao } from "@/hooks/api/use-aluno-home";
 import { Button } from "@/components/ui/button";
+import { CategoryBadge } from "@/components/ui/category-badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { GraficoLinha } from "@/components/graficos/grafico-linha";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   obterNomeMateria,
@@ -100,10 +102,13 @@ export default function PaginaHomeAluno() {
               <Skeleton className="h-16 w-full rounded-lg" />
             </div>
           ) : !data || data.ultimosResultados.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">
-              Você ainda não finalizou simulados. Os resultados vão aparecer
-              aqui.
-            </p>
+            <EmptyState
+              icone={Inbox}
+              tomIcone="neutro"
+              variante="compacto"
+              titulo="Sem resultados ainda"
+              descricao="Quando você finalizar um simulado, ele aparece aqui."
+            />
           ) : (
             <ul className="space-y-2">
               {data.ultimosResultados.map((r) => (
@@ -131,9 +136,12 @@ export default function PaginaHomeAluno() {
           {isLoading ? (
             <Skeleton className="h-64 w-full rounded-lg" />
           ) : !data || data.evolucao.length === 0 ? (
-            <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-border bg-card text-center text-sm text-muted-foreground">
-              <p>Faça pelo menos 2 simulados pra ver sua curva.</p>
-            </div>
+            <EmptyState
+              icone={LineChartIcon}
+              tomIcone="autoridade"
+              titulo="Sua curva aparece aqui"
+              descricao="Faça pelo menos 2 simulados pra ver a evolução."
+            />
           ) : (
             <GraficoEvolucao serie={data.evolucao} />
           )}
@@ -284,7 +292,10 @@ function CardResultado({ resultado }: { resultado: ResultadoSimulado }) {
           corClasse[cor],
         )}
       >
-        <span className="text-base font-semibold leading-none">
+        <span
+          className="text-base leading-none"
+          style={{ fontVariationSettings: '"wght" 590' }}
+        >
           {formatarNota(resultado.notaFinal)}
         </span>
       </div>
@@ -308,10 +319,10 @@ function CardResultado({ resultado }: { resultado: ResultadoSimulado }) {
 }
 
 function GraficoEvolucao({ serie }: { serie: PontoEvolucao[] }) {
-  const dados = serie.map((p, i) => ({
-    rotulo: `S${i + 1}`,
-    nota: p.nota,
-    data: p.data,
+  const dados = serie.map((ponto, indice) => ({
+    rotulo: `S${indice + 1}`,
+    nota: ponto.nota,
+    data: ponto.data,
   }));
   const ultima = serie[serie.length - 1];
   const anterior = serie[serie.length - 2];
@@ -325,73 +336,33 @@ function GraficoEvolucao({ serie }: { serie: PontoEvolucao[] }) {
           <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
             Última nota
           </p>
-          <p className="mt-1 font-serif text-3xl font-medium tabular-nums">
+          <p
+            className="mt-1 font-serif text-3xl tabular-nums"
+            style={{ fontVariationSettings: '"wght" 510' }}
+          >
             {ultima ? formatarNota(ultima.nota) : "—"}
           </p>
         </div>
         {tendencia !== 0 && (
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 rounded-md px-2 py-1 font-mono text-[10px] uppercase tracking-wider",
-              tendencia > 0
-                ? "bg-success-muted text-success"
-                : "bg-destructive-muted text-destructive",
-            )}
+          <CategoryBadge
+            categoria={tendencia > 0 ? "aprendizado" : "destrutivo"}
+            tamanho="xs"
           >
             {tendencia > 0 ? "↑" : "↓"} {formatarNota(Math.abs(tendencia))}
-          </span>
+          </CategoryBadge>
         )}
       </div>
 
-      <div className="mt-4 h-40 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={dados} margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
-            <XAxis
-              dataKey="rotulo"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 10, fontFamily: "var(--fonte-mono)" }}
-              stroke="var(--muted-foreground)"
-            />
-            <YAxis
-              domain={[0, 10]}
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 10, fontFamily: "var(--fonte-mono)" }}
-              stroke="var(--muted-foreground)"
-              width={20}
-            />
-            <Tooltip
-              contentStyle={{
-                background: "var(--card)",
-                border: "1px solid var(--border)",
-                borderRadius: 8,
-                fontSize: 12,
-                fontFamily: "var(--fonte-mono)",
-              }}
-              labelStyle={{ color: "var(--muted-foreground)" }}
-            />
-            <Line
-              type="monotone"
-              dataKey="nota"
-              stroke="var(--primary)"
-              strokeWidth={2.5}
-              dot={{
-                r: 4,
-                fill: "var(--primary)",
-                stroke: "var(--card)",
-                strokeWidth: 2,
-              }}
-              activeDot={{
-                r: 6,
-                fill: "var(--primary)",
-                stroke: "var(--card)",
-                strokeWidth: 3,
-              }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      <GraficoLinha
+        className="mt-4"
+        altura={160}
+        dados={dados}
+        chaveX="rotulo"
+        dominioY={[0, 10]}
+        linhas={[{ chave: "nota", rotulo: "Nota", tom: "autoridade" }]}
+        formatadorValor={(valor) => formatarNota(valor)}
+        ariaLabel="Curva de evolução das notas"
+      />
     </div>
   );
 }

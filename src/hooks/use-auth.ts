@@ -7,7 +7,7 @@ import type {
   UsuarioAutenticado,
 } from "@/types";
 import { useAuthStore } from "@/stores/auth-store";
-import { criar, CHAVE_TOKEN } from "@/lib/api";
+import { criar } from "@/lib/api";
 
 interface RespostaLogin {
   usuario: UsuarioAutenticado;
@@ -44,10 +44,7 @@ export function useAuth(): {
         ? { perfilDev }
         : { email, senha };
       const resposta = await criar<RespostaLogin>("/auth/login", corpo);
-      // grava token no localStorage pro interceptor injetar em chamadas seguintes
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(CHAVE_TOKEN, resposta.usuario.token);
-      }
+      // fazerLogin grava o cookie sedu-token via auth-store; lib/api lê do cookie.
       fazerLogin(resposta.usuario);
       return resposta.usuario;
     },
@@ -59,9 +56,6 @@ export function useAuth(): {
       await criar<void>("/auth/logout");
     } catch {
       // mesmo se falhar a chamada, limpa local
-    }
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem(CHAVE_TOKEN);
     }
     fazerLogout();
   }, [fazerLogout]);

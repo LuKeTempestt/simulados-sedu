@@ -75,6 +75,17 @@
   --color-ia-text: var(--ia-text);
   --color-ia-muted: var(--ia-muted);
 
+  /* ============================================================
+     CATEGORIAS SEMÂNTICAS — INVIOLÁVEL do DC dashboards
+     mapeadas pros tokens institucionais existentes (Lei Interna PowerSchool)
+     ============================================================ */
+  --color-categoria-aprendizado: var(--success);
+  --color-categoria-aprendizado-muted: var(--success-muted);
+  --color-categoria-missao: var(--warning);
+  --color-categoria-missao-muted: var(--warning-muted);
+  --color-categoria-autoridade: var(--primary);
+  --color-categoria-autoridade-muted: var(--primary-muted);
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -122,9 +133,9 @@
   --background: oklch(0.973 0.006 248);
   --foreground: oklch(0.18 0.024 263);
 
-  --card: oklch(1 0 0);
+  --card: oklch(0.99 0.004 248);
   --card-foreground: oklch(0.18 0.024 263);
-  --popover: oklch(1 0 0);
+  --popover: oklch(0.99 0.004 248);
   --popover-foreground: oklch(0.18 0.024 263);
 
   /* primary — azul institucional #1E40AF com 4 tons calculados estilo Linear */

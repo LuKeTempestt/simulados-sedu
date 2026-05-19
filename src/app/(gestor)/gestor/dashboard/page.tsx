@@ -14,7 +14,6 @@ import {
   Sparkles,
   TrendingUp,
   Users,
-  type LucideIcon,
 } from "lucide-react";
 import {
   Bar,
@@ -45,6 +44,9 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BadgeIA } from "@/components/ia/badge-ia";
+import { CardKpi } from "@/components/graficos/card-kpi";
+import { CategoryBadge } from "@/components/ui/category-badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   cn,
   formatarDataBR,
@@ -80,7 +82,7 @@ export default function PaginaDashboardGestor() {
         </p>
         <h1
           className="mt-2 font-serif text-3xl tracking-tight md:text-4xl"
-          style={{ fontVariationSettings: '"wght" 510' }}
+          style={{ fontVariationSettings: '"wght" 590' }}
         >
           {saudacaoDoMomento()},{" "}
           <span className="text-primary-text">{primeiroNome || "—"}</span>.
@@ -128,12 +130,14 @@ export default function PaginaDashboardGestor() {
                   rotulo="Alunos da escola"
                   valor={data.kpis.totalAlunos.toLocaleString("pt-BR")}
                   tom="neutro"
+                  delayReveal={0}
                 />
                 <CardKpi
                   icone={Activity}
                   rotulo="Simulados em andamento"
                   valor={data.kpis.simuladosEmAndamento.toString()}
                   tom={data.kpis.simuladosEmAndamento > 0 ? "vivo" : "neutro"}
+                  delayReveal={0.08}
                 />
                 <CardKpi
                   icone={TrendingUp}
@@ -141,12 +145,14 @@ export default function PaginaDashboardGestor() {
                   valor={formatarNota(data.kpis.mediaGeral)}
                   tom="primario"
                   delta={{ valor: "+0.4", direcao: "subindo" }}
+                  delayReveal={0.16}
                 />
                 <CardKpi
                   icone={AlertTriangle}
                   rotulo="Alertas de IA"
                   valor={data.kpis.alertasIA.toString()}
                   tom={data.kpis.alertasIA > 0 ? "alerta" : "neutro"}
+                  delayReveal={0.24}
                 />
               </>
             )}
@@ -164,7 +170,7 @@ export default function PaginaDashboardGestor() {
             <h2
               id="meus-simulados-titulo"
               className="font-serif text-xl tracking-tight md:text-2xl"
-              style={{ fontVariationSettings: '"wght" 510' }}
+              style={{ fontVariationSettings: '"wght" 590' }}
             >
               Meus simulados
             </h2>
@@ -183,20 +189,17 @@ export default function PaginaDashboardGestor() {
               ))}
             </div>
           ) : data.meusSimulados.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
-              <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                Nada por aqui ainda
-              </p>
-              <p
-                className="mt-3 font-serif text-lg tracking-tight"
-                style={{ fontVariationSettings: '"wght" 510' }}
-              >
-                Crie seu primeiro simulado.
-              </p>
-              <Button className="mt-4" asChild>
-                <Link href="/gestor/simulados/novo">+ Novo simulado</Link>
-              </Button>
-            </div>
+            <EmptyState
+              icone={Activity}
+              tomIcone="neutro"
+              titulo="Crie seu primeiro simulado."
+              descricao="Nada por aqui ainda"
+              acao={
+                <Button className="mt-4" asChild>
+                  <Link href="/gestor/simulados/novo">+ Novo simulado</Link>
+                </Button>
+              }
+            />
           ) : (
             <ul className="max-h-96 space-y-2 overflow-y-auto pr-1">
               {data.meusSimulados.map((simulado) => (
@@ -215,7 +218,7 @@ export default function PaginaDashboardGestor() {
               <h2
                 id="alertas-ia-titulo"
                 className="font-serif text-xl tracking-tight md:text-2xl"
-                style={{ fontVariationSettings: '"wght" 510' }}
+                style={{ fontVariationSettings: '"wght" 590' }}
               >
                 Alertas
               </h2>
@@ -237,7 +240,7 @@ export default function PaginaDashboardGestor() {
           <h2
             id="medias-turma-titulo"
             className="font-serif text-xl tracking-tight md:text-2xl"
-            style={{ fontVariationSettings: '"wght" 510' }}
+            style={{ fontVariationSettings: '"wght" 590' }}
           >
             Média por turma
           </h2>
@@ -249,105 +252,17 @@ export default function PaginaDashboardGestor() {
         {isLoading || !data ? (
           <Skeleton className="h-80 w-full rounded-xl" />
         ) : data.mediasPorTurma.length === 0 ? (
-          <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-border bg-card text-center text-sm text-muted-foreground">
-            Nenhuma turma com simulado finalizado ainda.
-          </div>
+          <EmptyState
+            icone={TrendingUp}
+            tomIcone="neutro"
+            titulo="Nenhuma turma com simulado finalizado ainda."
+            variante="compacto"
+          />
         ) : (
           <GraficoMediasTurma dados={data.mediasPorTurma} />
         )}
       </section>
     </div>
-  );
-}
-
-// ============================================================
-// KPI card
-// ============================================================
-
-interface CardKpiProps {
-  icone: LucideIcon;
-  rotulo: string;
-  valor: string;
-  tom: "neutro" | "primario" | "alerta" | "vivo";
-  delta?: { valor: string; direcao: "subindo" | "caindo" | "estavel" };
-}
-
-function CardKpi({ icone: Icone, rotulo, valor, tom, delta }: CardKpiProps) {
-  const tomClasses = {
-    neutro: {
-      borda: "border-border",
-      iconeBg: "bg-muted text-muted-foreground",
-      destaque: "",
-    },
-    primario: {
-      borda: "border-primary/20",
-      iconeBg: "bg-primary-muted text-primary-text",
-      destaque: "",
-    },
-    alerta: {
-      borda: "border-destructive/30",
-      iconeBg: "bg-destructive-muted text-destructive",
-      destaque: "",
-    },
-    vivo: {
-      borda: "border-success/30 ring-1 ring-success/15",
-      iconeBg: "bg-success-muted text-success",
-      destaque: "motion-pulse-ambient",
-    },
-  }[tom];
-
-  return (
-    <article
-      className={cn(
-        "rounded-xl border bg-card p-5",
-        "transition-all duration-200 [transition-timing-function:var(--ease-quart)]",
-        "hover:-translate-y-0.5",
-        tomClasses.borda,
-      )}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div
-          className={cn(
-            "flex size-9 shrink-0 items-center justify-center rounded-md",
-            tomClasses.iconeBg,
-            tomClasses.destaque,
-          )}
-          aria-hidden
-        >
-          <Icone className="size-4" />
-        </div>
-        {delta && (
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider tabular-nums",
-              delta.direcao === "subindo"
-                ? "bg-success-muted text-success"
-                : delta.direcao === "caindo"
-                  ? "bg-destructive-muted text-destructive"
-                  : "bg-muted text-muted-foreground",
-            )}
-          >
-            {delta.direcao === "subindo" ? (
-              <ArrowUp className="size-3" aria-hidden />
-            ) : delta.direcao === "caindo" ? (
-              <ArrowDown className="size-3" aria-hidden />
-            ) : (
-              <Minus className="size-3" aria-hidden />
-            )}
-            {delta.valor}
-          </span>
-        )}
-      </div>
-      <p
-        className="mt-4 font-serif text-3xl leading-none tabular-nums"
-        style={{ fontVariationSettings: '"wght" 510' }}
-      >
-        {valor}
-      </p>
-      <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-        {rotulo}
-      </p>
-    </article>
   );
 }
 
@@ -364,51 +279,21 @@ const ROTULOS_STATUS: Record<StatusSimulado, string> = {
   cancelado: "Cancelado",
 };
 
-function classesStatus(status: StatusSimulado): {
-  pillBg: string;
-  pillTexto: string;
-  ponto?: string;
-  pulse?: boolean;
-  spinner?: boolean;
-} {
+function obterCategoriaStatus(status: StatusSimulado): "neutro" | "missao" | "autoridade" | "aprendizado" | "destrutivo" {
   switch (status) {
     case "rascunho":
-      return {
-        pillBg: "bg-muted",
-        pillTexto: "text-muted-foreground",
-        ponto: "bg-muted-foreground/60",
-      };
-    case "em_curadoria":
-      return {
-        pillBg: "bg-warning-muted",
-        pillTexto: "text-warning",
-        spinner: true,
-      };
-    case "liberado":
-      return {
-        pillBg: "bg-primary-muted",
-        pillTexto: "text-primary-text",
-        ponto: "bg-primary-text",
-      };
-    case "em_andamento":
-      return {
-        pillBg: "bg-success-muted",
-        pillTexto: "text-success",
-        ponto: "bg-success",
-        pulse: true,
-      };
     case "finalizado":
-      return {
-        pillBg: "bg-muted",
-        pillTexto: "text-muted-foreground",
-        ponto: "bg-muted-foreground/40",
-      };
+      return "neutro";
+    case "em_curadoria":
+      return "missao";
+    case "liberado":
+      return "autoridade";
+    case "em_andamento":
+      return "aprendizado";
     case "cancelado":
-      return {
-        pillBg: "bg-destructive-muted",
-        pillTexto: "text-destructive",
-        ponto: "bg-destructive",
-      };
+      return "destrutivo";
+    default:
+      return "neutro";
   }
 }
 
@@ -428,7 +313,7 @@ function destinoSimulado(simulado: Simulado): string {
 
 function ItemSimulado({ simulado }: { simulado: SimuladoComContagem }) {
   const { status, parametros } = simulado;
-  const cores = classesStatus(status);
+  const categoria = obterCategoriaStatus(status);
   const podeLiberar = status === "em_curadoria";
   const [confirmaAberto, setConfirmaAberto] = useState(false);
   const liberar = useLiberarSimulado();
@@ -447,28 +332,16 @@ function ItemSimulado({ simulado }: { simulado: SimuladoComContagem }) {
         "hover:bg-accent/40 hover:border-primary/20",
       )}
     >
-      {/* status pill vertical */}
-      <span
-        className={cn(
-          "inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 font-mono text-[10px] uppercase tracking-wider",
-          cores.pillBg,
-          cores.pillTexto,
-        )}
-      >
-        {cores.spinner ? (
-          <Loader2 className="size-3 animate-spin" aria-hidden />
-        ) : (
+      <CategoryBadge categoria={categoria} tamanho="sm">
+        {status === "em_curadoria" && <Loader2 className="mr-1 size-3 animate-spin" aria-hidden />}
+        {status === "em_andamento" && (
           <span
             aria-hidden
-            className={cn(
-              "size-1.5 rounded-full",
-              cores.ponto,
-              cores.pulse && "motion-pulse-ambient",
-            )}
+            className="mr-1.5 size-1.5 rounded-full bg-success motion-pulse-ambient"
           />
         )}
         {ROTULOS_STATUS[status]}
-      </span>
+      </CategoryBadge>
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-foreground">
@@ -556,27 +429,13 @@ function ItemSimulado({ simulado }: { simulado: SimuladoComContagem }) {
 function BlocoAlertasIA({ alunos }: { alunos: AlunoEmRiscoResumo[] }) {
   if (alunos.length === 0) {
     return (
-      <div className="rounded-xl border border-ia/20 bg-ia-muted p-6">
-        <div className="flex items-start gap-3">
-          <div
-            className="flex size-9 shrink-0 items-center justify-center rounded-md bg-ia/12 text-ia-text"
-            aria-hidden
-          >
-            <Sparkles className="size-4" />
-          </div>
-          <div>
-            <p
-              className="font-serif text-base tracking-tight text-foreground"
-              style={{ fontVariationSettings: '"wght" 510' }}
-            >
-              Nenhum aluno em risco no momento.
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              A IA continua monitorando os padrões de desempenho.
-            </p>
-          </div>
-        </div>
-      </div>
+      <EmptyState
+        icone={Sparkles}
+        tomIcone="ia"
+        titulo="Nenhum aluno em risco no momento."
+        descricao="A IA continua monitorando os padrões de desempenho."
+        variante="compacto"
+      />
     );
   }
 
@@ -606,13 +465,13 @@ function ItemAlertaAluno({ item }: { item: AlunoEmRiscoResumo }) {
   const { aluno, probabilidadeRisco, tendencia, ultimaAtualizacao } = item;
   const pct = Math.round(probabilidadeRisco * 100);
 
-  const cor =
-    pct >= 70 ? "destructive" : pct >= 40 ? "warning" : "success";
-  const corClasse = {
-    destructive: { texto: "text-destructive", barra: "bg-destructive" },
-    warning: { texto: "text-warning", barra: "bg-warning" },
-    success: { texto: "text-success", barra: "bg-success" },
-  }[cor];
+  const categoria = pct >= 70 ? "destrutivo" : pct >= 40 ? "missao" : "aprendizado";
+  
+  const corBarra = {
+    destrutivo: "bg-destructive",
+    missao: "bg-warning",
+    aprendizado: "bg-success",
+  }[categoria];
 
   const tendenciaClasse =
     tendencia === "subindo"
@@ -642,14 +501,9 @@ function ItemAlertaAluno({ item }: { item: AlunoEmRiscoResumo }) {
           <p className="truncate text-sm font-medium text-foreground">
             {aluno.nome}
           </p>
-          <span
-            className={cn(
-              "shrink-0 font-mono text-xs font-semibold tabular-nums",
-              corClasse.texto,
-            )}
-          >
+          <CategoryBadge categoria={categoria} tamanho="xs">
             {formatarPorcentagem(pct)}
-          </span>
+          </CategoryBadge>
         </div>
 
         <div
@@ -664,7 +518,7 @@ function ItemAlertaAluno({ item }: { item: AlunoEmRiscoResumo }) {
             className={cn(
               "h-full transition-all duration-700",
               "[transition-timing-function:var(--ease-quart)]",
-              corClasse.barra,
+              corBarra,
             )}
             style={{ width: `${pct}%` }}
           />
@@ -779,4 +633,3 @@ function GraficoMediasTurma({ dados }: { dados: DadoTurma[] }) {
     </div>
   );
 }
-
