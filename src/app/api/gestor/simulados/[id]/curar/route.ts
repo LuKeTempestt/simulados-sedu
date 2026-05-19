@@ -35,10 +35,10 @@ export async function POST(
   const alvo = parametros.distribuicao;
   const total = parametros.quantidadeQuestoes;
 
-  // filtra questões da matéria + série
+  // filtra questões das matérias selecionadas + série
   const candidatas = mockQuestoes.filter(
     (q) =>
-      q.materia === parametros.materia &&
+      parametros.materias.includes(q.materia) &&
       q.serie === parametros.serie &&
       q.status === "publicada",
   );

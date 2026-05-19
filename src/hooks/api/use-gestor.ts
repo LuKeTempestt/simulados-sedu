@@ -221,6 +221,7 @@ export function useRelatorioSimulado(id: string | undefined) {
 // ============================================================
 
 export interface TurmaEnriquecida extends Turma {
+  escolaNome: string;
   totalAlunos: number;
   totalComAdaptacao: number;
 }

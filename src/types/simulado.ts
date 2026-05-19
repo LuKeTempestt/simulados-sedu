@@ -26,7 +26,7 @@ export interface ParametrosSimulado {
   nome: string;
   turmaId: string;
   serie: SerieEscolar;
-  materia: Materia;
+  materias: Materia[];
   conteudos: string[];
   quantidadeQuestoes: number;
   distribuicao: DistribuicaoDificuldade;

@@ -17,7 +17,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { GraficoLinha } from "@/components/graficos/grafico-linha";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  obterNomeMateria,
+  obterNomeMaterias,
   obterNomeSerie,
   saudacaoDoMomento,
 } from "@/lib/displays";
@@ -193,7 +193,7 @@ function CardProximoSimulado({ simulado }: { simulado: Simulado }) {
           </h3>
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
             <span className="font-mono text-[10px] uppercase tracking-wider">
-              {obterNomeMateria(simulado.parametros.materia)}
+              {obterNomeMaterias(simulado.parametros.materias)}
             </span>
             <span aria-hidden>·</span>
             <span className="font-mono text-[10px] uppercase tracking-wider">

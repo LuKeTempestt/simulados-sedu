@@ -51,7 +51,7 @@ import {
 } from "@/lib/utils";
 import {
   obterNomeAdaptacao,
-  obterNomeMateria,
+  obterNomeMaterias,
   obterNomeSerie,
 } from "@/lib/displays";
 import type { AdaptacaoCognitiva } from "@/types";
@@ -196,7 +196,7 @@ export default function PaginaRelatorioSimulado({
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(10);
       pdf.text(
-        `${obterNomeMateria(data.simulado.parametros.materia)} · ${obterNomeSerie(data.simulado.parametros.serie)}`,
+        `${obterNomeMaterias(data.simulado.parametros.materias)} · ${obterNomeSerie(data.simulado.parametros.serie)}`,
         margem,
         y,
       );
@@ -309,7 +309,7 @@ export default function PaginaRelatorioSimulado({
               {simulado.parametros.nome}
             </h1>
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground tabular-nums">
-              {obterNomeMateria(simulado.parametros.materia)}
+              {obterNomeMaterias(simulado.parametros.materias)}
               <span aria-hidden className="mx-2">·</span>
               {obterNomeSerie(simulado.parametros.serie)}
               <span aria-hidden className="mx-2">·</span>

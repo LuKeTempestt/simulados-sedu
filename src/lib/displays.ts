@@ -55,6 +55,17 @@ export const NOMES_NIVEL: Record<NivelDificuldade, string> = {
   dificil: "Difícil",
 };
 
+export function obterNomeMaterias(
+  materias: Materia[] | null | undefined,
+): string {
+  if (!materias || materias.length === 0) return "—";
+  if (materias.length === 1) return NOMES_MATERIA[materias[0]] ?? "—";
+  if (materias.length === 2) {
+    return `${NOMES_MATERIA[materias[0]]} + ${NOMES_MATERIA[materias[1]]}`;
+  }
+  return `${materias.length} matérias`;
+}
+
 export function obterNomeMateria(materia: Materia | null | undefined): string {
   if (!materia) return "—";
   return NOMES_MATERIA[materia] ?? "—";

@@ -34,6 +34,7 @@ import {
   useGestorTurmas,
   useLiberarSimulado,
   type RespostaCuradoria,
+  type TurmaEnriquecida,
 } from "@/hooks/api/use-gestor";
 import {
   Form,
@@ -47,7 +48,9 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -74,7 +77,7 @@ import {
   NOMES_ADAPTACAO,
   NOMES_MATERIA,
   NOMES_SERIE,
-  obterNomeMateria,
+  obterNomeMaterias,
   obterNomeSerie,
 } from "@/lib/displays";
 import { cn, formatarDataBR } from "@/lib/utils";
@@ -141,7 +144,9 @@ const schemaPasso1 = z.object({
     .max(120, "Nome muito longo"),
   turmaId: z.string().min(1, "Selecione uma turma"),
   serie: z.enum(SERIES, { message: "Selecione uma série" }),
-  materia: z.enum(MATERIAS, { message: "Selecione uma matéria" }),
+  materias: z
+    .array(z.enum(MATERIAS))
+    .min(1, "Selecione pelo menos uma matéria"),
   dataLiberacao: z.string().min(1, "Defina uma data de liberação"),
   tempoLimiteMinutos: z
     .number()
@@ -206,7 +211,7 @@ export default function PaginaNovoSimulado() {
       nome: valoresPasso1.nome,
       turmaId: valoresPasso1.turmaId,
       serie: valoresPasso1.serie,
-      materia: valoresPasso1.materia,
+      materias: valoresPasso1.materias,
       conteudos: valoresPasso2.conteudos,
       quantidadeQuestoes: valoresPasso2.quantidadeQuestoes,
       distribuicao: valoresPasso2.distribuicao,
@@ -222,15 +227,9 @@ export default function PaginaNovoSimulado() {
   );
 
   const podeAvancar = useMemo(() => {
-    if (passoAtual === 1) return Boolean(valoresPasso1);
-    if (passoAtual === 2) {
-      const dist = valoresPasso2?.distribuicao;
-      const total = dist ? dist.facil + dist.medio + dist.dificil : 0;
-      return Boolean(valoresPasso2) && total === 100;
-    }
     if (passoAtual === 3) return Boolean(respostaCuradoria) || seguirSemCuradoria;
     return true;
-  }, [passoAtual, valoresPasso1, valoresPasso2, respostaCuradoria, seguirSemCuradoria]);
+  }, [passoAtual, respostaCuradoria, seguirSemCuradoria]);
 
   function avancar() {
     if (!podeAvancar) return;
@@ -613,7 +612,7 @@ function Stepper({ passoAtual }: { passoAtual: NumeroPasso }) {
 
 interface Passo1Props {
   valorInicial: ValoresPasso1 | null;
-  turmas: { id: string; nome: string; serie: SerieEscolar }[];
+  turmas: TurmaEnriquecida[];
   turmasCarregando: boolean;
   aoSubmeter: (valores: ValoresPasso1) => void;
 }
@@ -630,7 +629,7 @@ function Passo1Parametros({
       nome: "",
       turmaId: "",
       serie: "" as SerieEscolar,
-      materia: "" as Materia,
+      materias: [] as Materia[],
       dataLiberacao: "",
       tempoLimiteMinutos: 60,
     },
@@ -646,6 +645,25 @@ function Passo1Parametros({
       form.setValue("serie", turma.serie, { shouldValidate: true });
     }
   }, [turmaIdSelecionada, turmas, form]);
+
+  // Agrupa turmas por escola e ordena por série dentro de cada grupo
+  const turmasAgrupadas = useMemo(() => {
+    const grupos = new Map<string, TurmaEnriquecida[]>();
+    for (const turma of turmas) {
+      const existente = grupos.get(turma.escolaNome);
+      if (existente) {
+        existente.push(turma);
+      } else {
+        grupos.set(turma.escolaNome, [turma]);
+      }
+    }
+    for (const lista of grupos.values()) {
+      lista.sort((a, b) => SERIES.indexOf(a.serie) - SERIES.indexOf(b.serie));
+    }
+    return Array.from(grupos.entries()).sort(([a], [b]) =>
+      a.localeCompare(b, "pt-BR"),
+    );
+  }, [turmas]);
 
   return (
     <SecaoCard
@@ -697,13 +715,20 @@ function Passo1Parametros({
                         />
                       </SelectTrigger>
                       <SelectContent>
-                        {turmas.map((t) => (
-                          <SelectItem key={t.id} value={t.id}>
-                            {t.nome}{" "}
-                            <span className="text-muted-foreground">
-                              · {obterNomeSerie(t.serie)}
-                            </span>
-                          </SelectItem>
+                        {turmasAgrupadas.map(([escolaNome, lista]) => (
+                          <SelectGroup key={escolaNome}>
+                            <SelectLabel className="px-2 pt-2 pb-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                              {escolaNome}
+                            </SelectLabel>
+                            {lista.map((t) => (
+                              <SelectItem key={t.id} value={t.id}>
+                                {t.nome}{" "}
+                                <span className="text-muted-foreground">
+                                  · {obterNomeSerie(t.serie)}
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         ))}
                       </SelectContent>
                     </Select>
@@ -739,46 +764,66 @@ function Passo1Parametros({
             />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="materia"
-              render={({ field }) => (
+          <FormField
+            control={form.control}
+            name="materias"
+            render={({ field }) => {
+              const selecionadas = (field.value ?? []) as Materia[];
+              const total = selecionadas.length;
+              function alternar(m: Materia, marcar: boolean) {
+                const proximo = marcar
+                  ? Array.from(new Set([...selecionadas, m]))
+                  : selecionadas.filter((x) => x !== m);
+                field.onChange(proximo);
+              }
+              return (
                 <FormItem>
-                  <FormLabel>Matéria</FormLabel>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <FormLabel>Matérias</FormLabel>
+                    <span
+                      className="font-mono text-[10px] uppercase tracking-wider tabular-nums text-muted-foreground"
+                      aria-live="polite"
+                    >
+                      {total === 0
+                        ? "nenhuma · selecione 1+"
+                        : `${total} selecionada${total > 1 ? "s" : ""}`}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Marque quantas quiser. O simulado pode cobrir 1 ou mais
+                    matérias.
+                  </p>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-10 w-full">
-                        <SelectValue placeholder="Selecione…" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MATERIAS.map((m) => (
-                          <SelectItem key={m} value={m}>
-                            {NOMES_MATERIA[m]}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <ul className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
+                      {MATERIAS.map((m) => (
+                        <CheckboxItem
+                          key={m}
+                          rotulo={NOMES_MATERIA[m]}
+                          marcado={selecionadas.includes(m)}
+                          aoAlternar={(marcar) => alternar(m, marcar)}
+                        />
+                      ))}
+                    </ul>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              );
+            }}
+          />
 
-            <FormField
-              control={form.control}
-              name="dataLiberacao"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Data de liberação</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="dataLiberacao"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Data de liberação</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} className="md:max-w-xs" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
@@ -1612,8 +1657,8 @@ function ResumoParametros({
         <ItemResumo rotulo="Turma" valor={turmaNome ?? "—"} />
         <ItemResumo rotulo="Série" valor={obterNomeSerie(parametros.serie)} />
         <ItemResumo
-          rotulo="Matéria"
-          valor={obterNomeMateria(parametros.materia)}
+          rotulo={parametros.materias.length > 1 ? "Matérias" : "Matéria"}
+          valor={obterNomeMaterias(parametros.materias)}
         />
         <ItemResumo
           rotulo="Questões"

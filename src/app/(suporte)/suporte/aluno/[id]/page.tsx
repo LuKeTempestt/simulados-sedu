@@ -42,7 +42,7 @@ import {
   formatarTempoRelativo,
   gerarIniciais,
 } from "@/lib/utils";
-import { obterNomeAdaptacao, obterNomeMateria, obterNomeSerie } from "@/lib/displays";
+import { obterNomeAdaptacao, obterNomeMaterias, obterNomeSerie } from "@/lib/displays";
 import type { AdaptacaoCognitiva } from "@/types";
 import { toast } from "sonner";
 
@@ -221,7 +221,7 @@ export default function PaginaSuporteAluno({
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {obterNomeMateria(simuladoAtivo.parametros.materia)} ·{" "}
+                    {obterNomeMaterias(simuladoAtivo.parametros.materias)} ·{" "}
                     {obterNomeSerie(simuladoAtivo.parametros.serie)}
                   </p>
                   <p className="mt-1 text-base font-medium text-foreground">

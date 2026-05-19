@@ -32,7 +32,7 @@ import {
   formatarTempoRelativo,
   gerarIniciais,
 } from "@/lib/utils";
-import { obterNomeMateria, obterNomeSerie } from "@/lib/displays";
+import { obterNomeMaterias, obterNomeSerie } from "@/lib/displays";
 import type { StatusAlunoSimulado } from "@/types";
 
 // ============================================================
@@ -156,7 +156,7 @@ export default function PaginaAcompanharSimulado({
               {dados.simulado.parametros.nome}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {obterNomeMateria(dados.simulado.parametros.materia)} ·{" "}
+              {obterNomeMaterias(dados.simulado.parametros.materias)} ·{" "}
               {obterNomeSerie(dados.simulado.parametros.serie)} ·{" "}
               <span className="font-mono tabular-nums">
                 {dados.tempoLimiteMinutos} min

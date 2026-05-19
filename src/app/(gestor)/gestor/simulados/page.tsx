@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn, formatarDataBR } from "@/lib/utils";
-import { obterNomeMateria, obterNomeSerie } from "@/lib/displays";
+import { obterNomeMaterias, obterNomeSerie } from "@/lib/displays";
 import type { Simulado, StatusSimulado } from "@/types";
 
 // ============================================================
@@ -359,7 +359,7 @@ function CardSimulado({ simulado }: { simulado: Simulado }) {
 
           {/* metadados */}
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground tabular-nums">
-            <Metadado>{obterNomeMateria(parametros.materia)}</Metadado>
+            <Metadado>{obterNomeMaterias(parametros.materias)}</Metadado>
             <Sep />
             <Metadado>{obterNomeSerie(parametros.serie)}</Metadado>
             <Sep />

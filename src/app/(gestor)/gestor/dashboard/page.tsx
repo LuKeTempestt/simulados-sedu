@@ -56,7 +56,7 @@ import {
   gerarIniciais,
 } from "@/lib/utils";
 import {
-  obterNomeMateria,
+  obterNomeMaterias,
   obterNomeSerie,
   saudacaoDoMomento,
 } from "@/lib/displays";
@@ -348,7 +348,7 @@ function ItemSimulado({ simulado }: { simulado: SimuladoComContagem }) {
           {parametros.nome}
         </p>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground tabular-nums">
-          <span>{obterNomeMateria(parametros.materia)}</span>
+          <span>{obterNomeMaterias(parametros.materias)}</span>
           <span aria-hidden>·</span>
           <span>{obterNomeSerie(parametros.serie)}</span>
           <span aria-hidden>·</span>

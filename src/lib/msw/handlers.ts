@@ -995,7 +995,7 @@ const handlersAluno: HttpHandler[] = [
       return {
         ...r,
         simuladoNome: simulado?.parametros.nome ?? "Simulado",
-        simuladoMateria: simulado?.parametros.materia ?? null,
+        simuladoMateria: simulado?.parametros.materias[0] ?? null,
       };
     });
 

@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSimuladoAluno } from "@/hooks/api/use-simulado-aluno";
-import { obterNomeMateria, obterNomeSerie } from "@/lib/displays";
+import { obterNomeMaterias, obterNomeSerie } from "@/lib/displays";
 
 const INSTRUCOES = [
   {
@@ -120,7 +120,7 @@ export default function PaginaInstrucoesSimulado({
 
         {/* metadata */}
         <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-          <span>{obterNomeMateria(simulado.parametros.materia)}</span>
+          <span>{obterNomeMaterias(simulado.parametros.materias)}</span>
           <span aria-hidden>·</span>
           <span>{obterNomeSerie(simulado.parametros.serie)}</span>
         </div>

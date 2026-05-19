@@ -31,7 +31,7 @@ import {
   formatarPorcentagem,
   cn,
 } from "@/lib/utils";
-import { obterNomeMateria, obterNomeSerie } from "@/lib/displays";
+import { obterNomeMaterias, obterNomeSerie } from "@/lib/displays";
 import type { Questao, RespostaQuestao } from "@/types";
 
 const LETRAS_ALT = ["A", "B", "C", "D", "E"] as const;
@@ -114,7 +114,7 @@ export default function PaginaResultadoSimulado({
       {/* HERO — círculo grande da nota */}
       <header className="text-center">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          {obterNomeMateria(simulado.parametros.materia)} ·{" "}
+          {obterNomeMaterias(simulado.parametros.materias)} ·{" "}
           {obterNomeSerie(simulado.parametros.serie)}
         </p>
         <h1
