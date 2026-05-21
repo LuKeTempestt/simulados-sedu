@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Simulados SEDU
 
-## Getting Started
+Plataforma estadual de simulados com correção e geração assistida por IA.
 
-First, run the development server:
+> Avaliação que não trava o aluno nem sobrecarrega o professor. Questão boa, feedback rápido, dado limpo na ponta da rede.
+
+## Sobre
+
+Frontend da plataforma de simulados da Secretaria de Estado da Educação de Sergipe (SEDU). Atende alunos da rede estadual e professores que precisam aplicar, corrigir e analisar simulados sem montar prova no Word às 23h. A IA entra na geração de itens alinhados à matriz de referência e na correção de questões abertas — o professor revisa, não substitui. Construído pra rodar em escola pública: rede instável, dispositivos variados, sessão de prova longa.
+
+## Stack
+
+| Camada | Ferramentas |
+| --- | --- |
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 + Server Components |
+| Tipagem | TypeScript estrito |
+| Estilo | Tailwind CSS v4 |
+| Componentes | shadcn/ui sobre Radix |
+| IA | Claude API / OpenAI (geração e avaliação de itens) |
+| Deploy | Vercel |
+
+## Decisões técnicas
+
+- **App Router com Server Components por padrão.** A maior parte da plataforma é leitura: lista de simulados, gabarito, relatório de turma. Renderizar no servidor reduz JS no cliente — crítico em Chromebook de escola e celular 3G. Client Component só onde tem interação real (cronômetro, marcação de resposta, editor do professor).
+- **shadcn/ui em vez de MUI ou Chakra.** Componentes copiados pro repositório, não importados de pacote. Permite ajustar acessibilidade (foco, leitor de tela, teclado) sem brigar com tema de biblioteca, e mantém o bundle enxuto. Radix por baixo garante semântica WAI-ARIA correta — requisito de acessibilidade do governo.
+- **IA com schema rígido e banco de itens validado.** Geração de questão passa por function calling com JSON schema (enunciado, alternativas, gabarito, habilidade BNCC, justificativa). Toda saída é validada com Zod antes de persistir, e nenhum item vai pro aluno sem revisão humana do professor. Alucinação aqui é problema pedagógico, não bug de UX.
+- **Tailwind v4 com tokens de design no CSS.** Variáveis em `@theme` no CSS direto, sem `tailwind.config.ts` engordando. Tipografia e espaçamento seguem escala fixa — interface de prova precisa ser previsível, não criativa.
+- **Server Actions para submissão de simulado.** Resposta do aluno vai por Server Action com revalidação direcionada. Menos endpoint REST pra manter, menos surface pra inconsistência entre cliente e servidor quando a rede da escola cai no meio da prova.
+
+## Como rodar localmente
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+git clone https://github.com/joaolopest/simulados-sedu-frontend.git
+cd simulados-sedu-frontend
+pnpm install
+cp .env.example .env.local   # preencher chaves de IA e backend
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplicação sobe em `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Deploy contínuo na Vercel a partir da branch `main`. URL de produção: _a definir_.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[LinkedIn](https://linkedin.com/in/joaolopest) · joaolopest@gmail.com
