@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Lora, JetBrains_Mono } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ProvedoresApp } from "@/components/provedores/provedores-app";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
